@@ -1,27 +1,46 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, FlatList, TextInput, Button } from "react-native";
+import { StyleSheet, Text, View, FlatList, TextInput, Button, ActivityIndicator } from "react-native";
 import FoodListItem from "../components/FoodListItem";
 import { useState } from "react";
+import {gql, useLazyQuery} from "@apollo/client";
 
-const foodItems = [
-  { label: "Pizza", cal: 475, brand: "domoinos" },
-  { label: "Apple", cal: 75, brand: "Generic" },
-  { label: "Black Coffee", cal: 10, brand: "Americano" },
-];
+const query = gql`
+query search ($ingr:String) {
+  search(ingr: $ingr) {
+    text
+    hints {
+      food {
+        brand
+        foodId
+        label
+        nutrients {
+          ENERC_KCAL
+          FAT
+          PROCNT
+        }
+      }
+    }
+  }
+}`
 
-export default function App() {
+export default function SearchScreen() {
   const [search, setSearch] = useState("");
-
+  const[ runSearch,{data,loading,error}] = useLazyQuery(query)
   const performSearch = () => {
-    console.warn ('Searching for:', search);
-
-    setSearch('');
+   runSearch({variables:{ingr:search}});
   }
 
+  if(error) {
+    console.log(error)
+    return <Text>Failed to search </Text>
+    
+  }
+
+  console.log(JSON.stringify(data,null,2))
+  const items = data?.search?.hints || [];
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
-
+      <StatusBar style="dark"/>
       <TextInput
         value={search}
         onChangeText={setSearch}
@@ -29,10 +48,12 @@ export default function App() {
         style={styles.input}
       />
       { search &&  <Button color={'#000000'} title="Search" onPress={performSearch}/> }
+      {loading && <ActivityIndicator/>}
       <FlatList
         scrollEnabled
-        data={foodItems}
+        data={items}
         renderItem={({ item }) => <FoodListItem item={item} />}
+        ListEmptyComponent={() => <Text>Search for food items</Text>}
         contentContainerStyle={{ gap: 5 }}
       />
     </View>

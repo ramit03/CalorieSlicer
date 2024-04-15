@@ -6,11 +6,18 @@ const FoodListItem = ({ item }) => {
     <View style={styles.container}>
       <View style={{ flex: 1, gap: 5 }}>
         <Text style={{ fontWeight: "bold", fontSize: 16, color: "#fff" }}>
-          {item.label}
+          {item.food.label}
         </Text>
         <Text style={{ color: "#ccc" }}>
-          {item.cal} cal, {item.brand}
+          {item.food.nutrients.ENERC_KCAL} cal {item.food.brand}
         </Text>
+        {/* <Text style={{ color: "#ccc" }}>
+          {(
+            item.food.nutrients.ENERC_KCAL -
+            (4 * item.food.nutrients.PROCNT + 9 * item.food.nutrients.FAT)
+          ).toFixed(1)}{" "}
+          Gms C {item.food.nutrients.PROCNT} Gms P  {item.food.nutrients.FAT} Gms F  
+        </Text> */}
       </View>
       <AntDesign name="pluscircleo" size={24} color="#191919" />
     </View>
